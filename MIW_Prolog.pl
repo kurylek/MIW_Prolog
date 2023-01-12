@@ -1,3 +1,6 @@
+% Create dynamic variables
+:- dynamic position/2.
+
 % Create rooms- room(roomName, Description)
 room(corridor, 'Corridor again.. Ugh.. Let`s enter apartment.. The door is in the west!').
 room(hall, 'All roads lead to Ro.. Hall of course! I think there sould be something in storage.
@@ -52,3 +55,45 @@ get_to(kitchen, livingroom, forward).
 get_to(livingroom, kitchen, back).
 get_to(livingroom, balcony, forward).
 get_to(balcony, livingroom, back).
+
+% Go to given direction
+move(Direction) :- % goes in specific direction
+    position(you, Position),
+    get_to(Position, To, Direction),
+    retract(position(you, Position)),
+    assert(position(you, To)),
+    write('You go to '), write(Direction),
+    write(' and enter '), writeln(To),
+    lookAround,
+    !.  
+
+% Called when u can't go to given direction/typed something that you can't do
+move(_) :-
+    writeln('You can`t go there, or you are trying to do somthing stupid!'),
+    lookAround.
+
+% Describe current room
+lookAround :-
+    position(you, Position),
+    room(Position, RoomDescription),
+    writeln(RoomDescription).
+
+% Loop with player moves
+moveHandler :-
+    nl,
+    writeln('What do you want to do?'),
+    read(Move),
+    call(move(Move)),
+    moveHandler.
+
+% Setup game
+setup :-
+    retractall(position(_,_)),
+    assert(position(you, corridor)).
+
+% Starting game
+start :-
+    writeln('You have left the elevator and are in the corridor.'),
+    setup,
+    lookAround,
+    moveHandler.
