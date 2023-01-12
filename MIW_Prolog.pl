@@ -1,5 +1,6 @@
 % Create dynamic variables
 :- dynamic myPosition/1.
+:- dynamic itemPosition/2.
 :- dynamic hasWardrobeKey/1.
 
 % Create rooms- room(roomName, Description)
@@ -30,6 +31,12 @@ object(tv).
 object(couch).
 object(bench).
 
+% 
+keys(wardrobeKeys).
+
+%
+pockets([wardrobeKeys]).
+
 % Describe where is objcect- is_in_room(object, room)
 is_in_room(elevator, corridor).
 is_in_room(bed, bedroom).
@@ -58,20 +65,29 @@ get_to(livingroom, balcony, forward).
 get_to(balcony, livingroom, back).
 
 
+%get_to(livingroom, bedroom, right).
+%get_to(bedroom, livingroom, left).
+
+
+% Do something with bed
+move(bed) :-
+    myPosition(Position),
+    (is_in_room(bed, Position) -> bed(Position) ; notThere(bed)).
+
 % Do something with couch
 move(couch) :-
     myPosition(Position),
-    couch(Position).
+	(is_in_room(couch, Position) -> couch(Position) ; notThere(couch)).
 
 % Do something with wardrobe
 move(wardrobe) :-
     myPosition(Position),
-    wardrobe(Position).
+	(is_in_room(wardrobe, Position) -> wardrobe(Position) ; notThere(wardrobe)).
 
 %  Go to elevator
 move(elevator) :-
     myPosition(Position),
-    elevator(Position).
+	(is_in_room(elevator, Position) -> elevator(Position) ; notThere(elevator)).
 
 % Go to given direction
 move(Direction) :- % goes in specific direction
@@ -90,23 +106,48 @@ move(_) :-
     lookAround.
 
 
-% Called when you want to do something with wardrobe
-couch(Position) :-
+% Called when you want to do something with bed
+bed(Position) :-
     myPosition(Position),
-	is_in_room(couch, Position),
-    (hasWardrobeKey(no) ->  
-    writeln('Ough! I sat on someting! [..] Ohh! These keys are from the wardrobe! I thought I threw them away..'),
-    retractall(hasWardrobeKey(_)),
-    assertz(hasWardrobeKey(yes))
-    ;writeln('That couch.. Kind of old, but still very comfortable..'),
-    retractall(hasWardrobeKey(_)),
-    assertz(hasWardrobeKey(no))
+	is_in_room(bed, Position),
+    % Picking/Leaving keys 
+    (itemPosition(wardrobeKeys, bed)->  
+    	writeln('How can I take a nap, when there is something.. Oh!! Thats my wardrobekeys!'),
+    	retractall(hasWardrobeKey(_)),
+    	assertz(hasWardrobeKey(yes)),
+    	retract(itemPosition(wardrobeKeys, bed)),
+		assert(itemPosition(wardrobeKeys, pockets))
+    	;writeln('I love.. Naps..'),
+        (hasWardrobeKey(yes) ->  
+    		retractall(hasWardrobeKey(_)),
+    		assertz(hasWardrobeKey(no)),
+    		retract(itemPosition(wardrobeKeys, pockets)),
+			assert(itemPosition(wardrobeKeys, bed))
+        	;writeln('It look`s like there was something.. But what was that?')
+        )
     ),
     !.
 
-% Called when u cant do anything with wardrobe
-couch(_) :-
-    writeln('Couch? I tought that I have only one couch.. It should be in living room!'),
+% Called when you want to do something with couch
+couch(Position) :-
+    myPosition(Position),
+	is_in_room(couch, Position),
+    % Picking/Leaving keys 
+    (hasWardrobeKey(no), itemPosition(wardrobeKeys, couch)->  
+    	writeln('Ough! I sat on someting! [..] Ohh! These keys are from the wardrobe! I thought I threw them away..'),
+    	retractall(hasWardrobeKey(_)),
+    	assertz(hasWardrobeKey(yes)),
+    	retract(itemPosition(wardrobeKeys, couch)),
+		assert(itemPosition(wardrobeKeys, pockets))
+    	;writeln('That couch.. Kind of old, but still very comfortable..'),
+        (hasWardrobeKey(yes) ->  
+    		retractall(hasWardrobeKey(_)),
+    		assertz(hasWardrobeKey(no)),
+    		retract(itemPosition(wardrobeKeys, pockets)),
+			assert(itemPosition(wardrobeKeys, couch))
+        	;writeln('It look`s like there was something.. But what was that?')
+        )
+    ),
     !.
 
 % Called when you want to do something with wardrobe
@@ -114,14 +155,9 @@ wardrobe(Position) :-
     myPosition(Position),
 	is_in_room(wardrobe, Position),
     (hasWardrobeKey(no) ->  
-    writeln('Oh.. It`s closed! I don`t remember where the keys are. I think I threw them away.')
-    ;writeln('Oh.. It`s closed! But.. I have keys! [..] Well.. Why did I locked empty wardrobe?')
+    	writeln('Oh.. It`s closed! I don`t remember where the keys are. I think I threw them away.')
+    	;writeln('Oh.. It`s closed! But.. I have keys! [..] Well.. Why did I locked empty wardrobe?')
     ),
-    !.
-
-% Called when u cant do anything with wardrobe
-wardrobe(_) :-
-    writeln('Wardrobe? What wardrobe? There is no wardrobe right here! I think, that it should be in bedroom!'),
     !.
 
 % Called when you go inside elevator
@@ -133,9 +169,10 @@ elevator(Position) :-
     assert(myPosition(out)),
     !.
 
-% Called when there is no elevator in room
-elevator(_) :-
-    writeln('Are you blind? There is no elevator in here!'),
+notThere(Move) :-
+    write('Are you blind? There is no '),
+    write(Move),
+    writeln(' in here!'),
     !.
 
 
@@ -173,7 +210,9 @@ moveHandler :-
 setup :-
     retractall(myPosition(_)),
     assert(myPosition(corridor)),
-	assert(hasWardrobeKey(no)).
+    %assert(myPosition(bedroom)),
+	assert(hasWardrobeKey(no)),
+	assert(itemPosition(wardrobeKeys, couch)).
 
 % Starting game
 start :-
