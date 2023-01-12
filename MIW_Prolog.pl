@@ -56,6 +56,12 @@ get_to(livingroom, kitchen, back).
 get_to(livingroom, balcony, forward).
 get_to(balcony, livingroom, back).
 
+
+% Do something with wardrobe
+move(wardrobe) :-
+    position(you, Position),
+    wardrobe(Position).
+
 %  Go to elevator
 move(elevator) :-
     position(you, Position),
@@ -77,6 +83,19 @@ move(_) :-
     writeln('You can`t go there, or you are trying to do something stupid!'),
     lookAround.
 
+
+% Called when you want to do something with wardrobe
+wardrobe(Position) :-
+    position(you, Position),
+	is_in_room(wardrobe, Position),
+    writeln('Oh.. It`s closed! I don`t remember where the keys are. I think I threw them away.'),
+    !.
+
+% Called when u cant do anything with wardrobe
+wardrobe(_) :-
+    writeln('Wardrobe? What wardrobe? There is no wardrobe right here! I think, that it should be in bedroom!'),
+    !.
+
 % Called when you go inside elevator
 elevator(Position) :-
     position(you, Position),
@@ -90,11 +109,24 @@ elevator(_) :-
     writeln('Are you blind? There is no elevator in here!'),
     !.
 
+
 % Describe current room
 lookAround :-
     position(you, Position),
     room(Position, RoomDescription),
     writeln(RoomDescription).
+
+% Print how to move
+moves :-
+    writeln('Hey! To move you have to type some body relative direction!'),
+	writeln('So you have four moving options- left, right, foward and back!'),
+    writeln('---'),
+	writeln('There are some interactions with objects too!'),
+	writeln('To go out type `elevator`'),
+	writeln('To check what is in wardrobe type `wardrobe`'),
+    writeln('---'),
+    writeln('Good luck!'),
+	nl.
 
 moveHandler :- % end of main loop
     position(you, out),
@@ -115,6 +147,7 @@ setup :-
 
 % Starting game
 start :-
+    moves,
     writeln('You have left the elevator and are in the corridor.'),
     setup,
     lookAround,
