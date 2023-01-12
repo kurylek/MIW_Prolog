@@ -1,5 +1,6 @@
 % Create dynamic variables
 :- dynamic position/2.
+:- dynamic hasWardrobeKey/1.
 
 % Create rooms- room(roomName, Description)
 room(corridor, 'Corridor again.. Ugh.. Let`s enter apartment.. The door is in front of you!').
@@ -88,7 +89,10 @@ move(_) :-
 wardrobe(Position) :-
     position(you, Position),
 	is_in_room(wardrobe, Position),
-    writeln('Oh.. It`s closed! I don`t remember where the keys are. I think I threw them away.'),
+    (hasWardrobeKey(no) ->  
+    writeln('Oh.. It`s closed! I don`t remember where the keys are. I think I threw them away.')
+    ;writeln('Oh.. It`s closed! But.. I have keys! [..] Well.. Why did I locked empty wardrobe?')
+    ),
     !.
 
 % Called when u cant do anything with wardrobe
@@ -101,6 +105,7 @@ elevator(Position) :-
     position(you, Position),
 	is_in_room(elevator, Position),
     writeln('Okey, let`s go out!'),
+    retract(position(you, Position)),
     assert(position(you, out)),
     !.
 
@@ -143,7 +148,10 @@ moveHandler :-
 % Setup game
 setup :-
     retractall(position(_,_)),
-    assert(position(you, corridor)).
+    assert(position(you, corridor)),
+	assert(hasWardrobeKey(no)),
+	%retractall(hasWardrobeKey(_)),
+	%assertz(hasWardrobeKey(yes)).
 
 % Starting game
 start :-
