@@ -58,6 +58,11 @@ get_to(livingroom, balcony, forward).
 get_to(balcony, livingroom, back).
 
 
+% Do something with couch
+move(couch) :-
+    position(you, Position),
+    couch(Position).
+
 % Do something with wardrobe
 move(wardrobe) :-
     position(you, Position),
@@ -84,6 +89,25 @@ move(_) :-
     writeln('You can`t go there, or you are trying to do something stupid!'),
     lookAround.
 
+
+% Called when you want to do something with wardrobe
+couch(Position) :-
+    position(you, Position),
+	is_in_room(couch, Position),
+    (hasWardrobeKey(no) ->  
+    writeln('Ough! I sat on someting! [..] Ohh! These keys are from the wardrobe! I thought I threw them away..'),
+    retractall(hasWardrobeKey(_)),
+    assertz(hasWardrobeKey(yes))
+    ;writeln('That couch.. Kind of old, but still very comfortable..'),
+    retractall(hasWardrobeKey(_)),
+    assertz(hasWardrobeKey(no))
+    ),
+    !.
+
+% Called when u cant do anything with wardrobe
+couch(_) :-
+    writeln('Couch? I tought that I have only one couch.. It should be in living room!'),
+    !.
 
 % Called when you want to do something with wardrobe
 wardrobe(Position) :-
@@ -149,9 +173,7 @@ moveHandler :-
 setup :-
     retractall(position(_,_)),
     assert(position(you, corridor)),
-	assert(hasWardrobeKey(no)),
-	%retractall(hasWardrobeKey(_)),
-	%assertz(hasWardrobeKey(yes)).
+	assert(hasWardrobeKey(no)).
 
 % Starting game
 start :-
