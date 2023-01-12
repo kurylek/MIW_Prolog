@@ -1,5 +1,5 @@
 % Create dynamic variables
-:- dynamic position/2.
+:- dynamic myPosition/1.
 :- dynamic hasWardrobeKey/1.
 
 % Create rooms- room(roomName, Description)
@@ -60,25 +60,25 @@ get_to(balcony, livingroom, back).
 
 % Do something with couch
 move(couch) :-
-    position(you, Position),
+    myPosition(Position),
     couch(Position).
 
 % Do something with wardrobe
 move(wardrobe) :-
-    position(you, Position),
+    myPosition(Position),
     wardrobe(Position).
 
 %  Go to elevator
 move(elevator) :-
-    position(you, Position),
+    myPosition(Position),
     elevator(Position).
 
 % Go to given direction
 move(Direction) :- % goes in specific direction
-    position(you, Position),
+    myPosition(Position),
     get_to(Position, To, Direction),
-    retract(position(you, Position)),
-    assert(position(you, To)),
+    retract(myPosition(Position)),
+    assert(myPosition(To)),
     write('You go to '), write(Direction),
     write(' and enter '), writeln(To),
     lookAround,
@@ -92,7 +92,7 @@ move(_) :-
 
 % Called when you want to do something with wardrobe
 couch(Position) :-
-    position(you, Position),
+    myPosition(Position),
 	is_in_room(couch, Position),
     (hasWardrobeKey(no) ->  
     writeln('Ough! I sat on someting! [..] Ohh! These keys are from the wardrobe! I thought I threw them away..'),
@@ -111,7 +111,7 @@ couch(_) :-
 
 % Called when you want to do something with wardrobe
 wardrobe(Position) :-
-    position(you, Position),
+    myPosition(Position),
 	is_in_room(wardrobe, Position),
     (hasWardrobeKey(no) ->  
     writeln('Oh.. It`s closed! I don`t remember where the keys are. I think I threw them away.')
@@ -126,11 +126,11 @@ wardrobe(_) :-
 
 % Called when you go inside elevator
 elevator(Position) :-
-    position(you, Position),
+    myPosition(Position),
 	is_in_room(elevator, Position),
     writeln('Okey, let`s go out!'),
-    retract(position(you, Position)),
-    assert(position(you, out)),
+    retract(myPosition(Position)),
+    assert(myPosition(out)),
     !.
 
 % Called when there is no elevator in room
@@ -141,7 +141,7 @@ elevator(_) :-
 
 % Describe current room
 lookAround :-
-    position(you, Position),
+    myPosition(Position),
     room(Position, RoomDescription),
     writeln(RoomDescription).
 
@@ -158,7 +158,7 @@ moves :-
 	nl.
 
 moveHandler :- % end of main loop
-    position(you, out),
+    myPosition(out),
     writeln('You entered elevator and then leaved building!'),
     !.
 % Loop with player moves
@@ -171,8 +171,8 @@ moveHandler :-
 
 % Setup game
 setup :-
-    retractall(position(_,_)),
-    assert(position(you, corridor)),
+    retractall(myPosition(_)),
+    assert(myPosition(corridor)),
 	assert(hasWardrobeKey(no)).
 
 % Starting game
