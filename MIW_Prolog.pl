@@ -15,7 +15,7 @@ room(bedroom, 'Look at this bed! It`s so huge.. How about a quick nap? [..] No?
 room(kitchen, 'Wow.. I wish I know how to cook, that microwave was worth it`s price..
                You can go to living room it`s ahead, or to hall on right.').
 room(livingroom, 'Living room without TV would be deadroom! You can go out to the balcony- it`s in front,
-                  or go back to kitchen. It`s your choice!').
+                  or go back to kitchen. It`s your choice! If u want you can walk near TV! ((forwardNearTv))').
 room(balcony, 'Maybe is small, but hey! It`s yours! Take a look around, or go back inside.').
 
 % Create objects- object(objectname)
@@ -68,6 +68,13 @@ get_to(balcony, livingroom, back).
 %get_to(livingroom, bedroom, right).
 %get_to(bedroom, livingroom, left).
 
+% Move forward near TV
+move(forwardNearTv) :-
+    (myPosition(livingroom) -> 
+        writeln('You walk forward near TV'),
+        move(forward)
+    	;notThere(tv)
+    ).
 
 % Do something with bed
 move(bed) :-
