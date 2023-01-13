@@ -118,6 +118,7 @@ bed(Position) :-
     	retract(itemPosition(wardrobeKeys, bed)),
 		assert(itemPosition(wardrobeKeys, pockets))
     	;writeln('I love.. Naps..'),
+        takeNap(5),
         (hasWardrobeKey(yes) ->  
     		retractall(hasWardrobeKey(_)),
     		assertz(hasWardrobeKey(no)),
@@ -174,7 +175,20 @@ notThere(Move) :-
     write(Move),
     writeln(' in here!'),
     !.
+ 
+% Starting nap
+takeNap(X):-
+    snore(1,X).
 
+ 
+
+% Taking nap- recursion
+snore(Y1,X):-
+    (Y1=<X -> 
+        write('Zzz..'),
+        Y2 is Y1+1,
+        snore(Y2,X)
+    ;   writeln('Ouh.. That was good nap!')).
 
 % Describe current room
 lookAround :-
