@@ -3,6 +3,7 @@
 :- dynamic itemPosition/2.
 :- dynamic hasWardrobeKey/1.
 :- dynamic tvState/1.
+:- dynamic inventory/2.
 
 % Create rooms- room(roomName, Description)
 room(corridor, 'Corridor again.. Ugh.. Let`s enter apartment.. The door is in front of you!').
@@ -65,6 +66,27 @@ get_to(balcony, livingroom, back).
 
 %get_to(livingroom, bedroom, right).
 %get_to(bedroom, livingroom, left).
+
+% Checking pockets
+move(checkPockets) :-
+    (inventory(pocket, _) ->
+    	write('I`m checking my pockets.. I have: '),
+    	listInventory(pocket),
+    	writeln('If u want to eat it just say me ((`eat(X)`)), or you can store it in fridge!')
+    	;writeln('Oh.. It looks like my pockets are empty.. Not good, not good..')
+    ).
+
+% Eat sth from pocket
+move(eat(X)) :-
+    (inventory(pocket, X) ->
+    	retract(inventory(pocket, X)),
+        write('Omnomno.. I just ate '),
+        write(X),
+        writeln('!')
+    	;write('Hm.. I dont have '),
+        write(X),
+        writeln(' in my pockets!')
+    ).
 
 % Move forward near TV
 move(forwardNearTv) :-
@@ -223,8 +245,6 @@ notThere(Move) :-
 takeNap(X):-
     snore(1,X).
 
- 
-
 % Taking nap- recursion
 snore(Y1,X):-
     (Y1=<X -> 
@@ -232,6 +252,11 @@ snore(Y1,X):-
         Y2 is Y1+1,
         snore(Y2,X)
     ;   writeln('Ouh.. That was good nap!')).
+
+% List inventory
+listInventory(X) :-
+    forall(inventory(X, Y), (write(Y), write(', '))),
+    nl.
 
 % Describe current room
 lookAround :-
@@ -265,12 +290,15 @@ moveHandler :-
 
 % Setup game
 setup :-
-    retractall(myPosition(_)),
     assert(myPosition(corridor)),
     %assert(myPosition(bedroom)),
 	assert(hasWardrobeKey(no)),
     assert(tvState(off)),
-	assert(itemPosition(wardrobeKeys, couch)).
+	assert(itemPosition(wardrobeKeys, couch)),
+	assert(inventory(pocket, bannana)),
+	assert(inventory(pocket, apple)),
+	assert(inventory(fridge, grapes)).
+    
 
 % Starting game
 start :-
