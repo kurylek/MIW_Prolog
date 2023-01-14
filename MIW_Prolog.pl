@@ -36,35 +36,35 @@ object(couch).
 object(bench).
 object(wardrobeKeys).
 
-% Describe where is objcect- is_in_room(object, room)
-is_in_room(elevator, corridor).
-is_in_room(bed, bedroom).
-is_in_room(wardrobe, bedroom).
-is_in_room(bath, bathroom).
-is_in_room(toilet, bathroom).
-is_in_room(storage, hall).
-is_in_room(fridge, kitchen).
-is_in_room(microwave, kitchen).
-is_in_room(tv, livingroom).
-is_in_room(couch, livingroom).
-is_in_room(bench, balcony).
+% Describe where is objcect- isInRoom(object, room)
+isInRoom(elevator, corridor).
+isInRoom(bed, bedroom).
+isInRoom(wardrobe, bedroom).
+isInRoom(bath, bathroom).
+isInRoom(toilet, bathroom).
+isInRoom(storage, hall).
+isInRoom(fridge, kitchen).
+isInRoom(microwave, kitchen).
+isInRoom(tv, livingroom).
+isInRoom(couch, livingroom).
+isInRoom(bench, balcony).
 
 % Describe that romm contains object containsObject(room, object)
-containsObject(X, Y) :- is_in_room(Y, X).
+containsObject(X, Y) :- isInRoom(Y, X).
 
 % Describe paths between rooms room(from, to, direction)
-get_to(corridor, hall, forward).
-get_to(hall, corridor, back).
-get_to(hall, bathroom, right).
-get_to(bathroom, hall, left).
-get_to(hall, bedroom, forward).
-get_to(bedroom, hall, back).
-get_to(hall, kitchen, left).
-get_to(kitchen, hall, right).
-get_to(kitchen, livingroom, forward).
-get_to(livingroom, kitchen, back).
-get_to(livingroom, balcony, forward).
-get_to(balcony, livingroom, back).
+getTo(corridor, hall, forward).
+getTo(hall, corridor, back).
+getTo(hall, bathroom, right).
+getTo(bathroom, hall, left).
+getTo(hall, bedroom, forward).
+getTo(bedroom, hall, back).
+getTo(hall, kitchen, left).
+getTo(kitchen, hall, right).
+getTo(kitchen, livingroom, forward).
+getTo(livingroom, kitchen, back).
+getTo(livingroom, balcony, forward).
+getTo(balcony, livingroom, back).
 
 % Take sth from fridge
 move(fridgeTake(X)) :-
@@ -176,27 +176,27 @@ move(turnOffTv) :-
 % Do something with bed
 move(bed) :-
     myPosition(Position),
-    (is_in_room(bed, Position) -> bed(Position) ; notThere(bed)).
+    (isInRoom(bed, Position) -> bed(Position) ; notThere(bed)).
 
 % Do something with couch
 move(couch) :-
     myPosition(Position),
-	(is_in_room(couch, Position) -> couch(Position) ; notThere(couch)).
+	(isInRoom(couch, Position) -> couch(Position) ; notThere(couch)).
 
 % Do something with wardrobe
 move(wardrobe) :-
     myPosition(Position),
-	(is_in_room(wardrobe, Position) -> wardrobe(Position) ; notThere(wardrobe)).
+	(isInRoom(wardrobe, Position) -> wardrobe(Position) ; notThere(wardrobe)).
 
 %  Go to elevator
 move(elevator) :-
     myPosition(Position),
-	(is_in_room(elevator, Position) -> elevator(Position) ; notThere(elevator)).
+	(isInRoom(elevator, Position) -> elevator(Position) ; notThere(elevator)).
 
 % Go to given direction
 move(Direction) :- % goes in specific direction
     myPosition(Position),
-    get_to(Position, To, Direction),
+    getTo(Position, To, Direction),
     retract(myPosition(Position)),
     assert(myPosition(To)),
     write('You go to '), write(Direction),
@@ -213,7 +213,7 @@ move(_) :-
 % Called when you want to do something with bed
 bed(Position) :-
     myPosition(Position),
-	is_in_room(bed, Position),
+	isInRoom(bed, Position),
     % Picking/Leaving keys 
     (itemPosition(wardrobeKeys, bed)->  
     	writeln('How can I take a nap, when there is something.. Oh!! Thats my wardrobekeys!'),
@@ -236,7 +236,7 @@ bed(Position) :-
 % Called when you want to do something with couch
 couch(Position) :-
     myPosition(Position),
-	is_in_room(couch, Position),
+	isInRoom(couch, Position),
     % Picking/Leaving keys 
     (hasWardrobeKey(no), itemPosition(wardrobeKeys, couch)->  
     	writeln('Ough! I sat on someting! [..] Ohh! These keys are from the wardrobe! I thought I threw them away..'),
@@ -258,7 +258,7 @@ couch(Position) :-
 % Called when you want to do something with wardrobe
 wardrobe(Position) :-
     myPosition(Position),
-	is_in_room(wardrobe, Position),
+	isInRoom(wardrobe, Position),
     (hasWardrobeKey(no) ->  
     	writeln('Oh.. It`s closed! I don`t remember where the keys are. I think I threw them away.')
     	;writeln('Oh.. It`s closed! But.. I have keys! [..] Well.. Why did I locked empty wardrobe?')
@@ -268,7 +268,7 @@ wardrobe(Position) :-
 % Called when you go inside elevator
 elevator(Position) :-
     myPosition(Position),
-	is_in_room(elevator, Position),
+	isInRoom(elevator, Position),
     writeln('Okey, let`s go out!'),
     retract(myPosition(Position)),
     assert(myPosition(out)),
