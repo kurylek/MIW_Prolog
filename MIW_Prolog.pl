@@ -49,6 +49,9 @@ is_in_room(tv, livingroom).
 is_in_room(couch, livingroom).
 is_in_room(bench, balcony).
 
+% Describe that romm contains object containsObject(room, object)
+containsObject(X, Y) :- is_in_room(Y, X).
+
 % Describe paths between rooms room(from, to, direction)
 get_to(corridor, hall, forward).
 get_to(hall, corridor, back).
@@ -271,6 +274,7 @@ elevator(Position) :-
     assert(myPosition(out)),
     !.
 
+% Called when you want to interact with object that is not in your room
 notThere(Move) :-
     write('Are you blind? There is no '),
     write(Move),
@@ -314,10 +318,12 @@ moves :-
     writeln('Good luck!'),
 	nl.
 
-moveHandler :- % end of main loop
+% Check if went to elevator
+moveHandler :-
     myPosition(out),
     writeln('You entered elevator and then leaved building!'),
     !.
+
 % Loop with player moves
 moveHandler :-
     nl,
@@ -329,7 +335,6 @@ moveHandler :-
 % Setup game
 setup :-
     assert(myPosition(corridor)),
-    %assert(myPosition(bedroom)),
 	assert(hasWardrobeKey(no)),
     assert(tvState(off)),
 	assert(itemPosition(wardrobeKeys, couch)),
