@@ -63,9 +63,35 @@ get_to(livingroom, kitchen, back).
 get_to(livingroom, balcony, forward).
 get_to(balcony, livingroom, back).
 
+% Take sth from fridge
+move(fridgeTake(X)) :-
+    (myPosition(kitchen) ->  
+    	(inventory(fridge, X) ->
+    		retract(inventory(fridge, X)),
+    		assert(inventory(pocket, X)),
+        	write('Lets take '),
+        	write(X),
+        	writeln(' from fridge, so I can eat it!')
+    		;write('Hm.. I there is no '),
+        	write(X),
+        	writeln(' in fridge!')
+    	);notThere(fridge)
+    ).
 
-%get_to(livingroom, bedroom, right).
-%get_to(bedroom, livingroom, left).
+% Store sth in fridge
+move(fridgePut(X)) :-
+    (myPosition(kitchen) ->  
+    	(inventory(pocket, X) ->
+    		retract(inventory(pocket, X)),
+    		assert(inventory(fridge, X)),
+        	write('Lets put '),
+        	write(X),
+        	writeln(' to fridge, so I can eat it later!')
+    		;write('Hm.. I dont have '),
+        	write(X),
+        	writeln(' in my pockets!')
+    	);notThere(fridge)
+    ).
 
 % Checking pockets
 move(checkPockets) :-
@@ -74,6 +100,16 @@ move(checkPockets) :-
     	listInventory(pocket),
     	writeln('If u want to eat it just say me ((`eat(X)`)), or you can store it in fridge!')
     	;writeln('Oh.. It looks like my pockets are empty.. Not good, not good..')
+    ).
+
+% Checking fridge
+move(checkFridge) :-
+    (myPosition(kitchen) ->  
+    	(inventory(fridge, _) ->
+    		write('I`m checking fridge.. There is: '),
+    		listInventory(fridge)
+    		;writeln('Oh.. It looks like my fridge is empty.. It`s time to go shoping!')
+    	);notThere(fridge)
     ).
 
 % Eat sth from pocket
@@ -272,6 +308,8 @@ moves :-
 	writeln('There are some interactions with objects too!'),
 	writeln('To go out type `elevator`'),
 	writeln('To check what is in wardrobe type `wardrobe`'),
+    writeln('In livingroom you can interact with TV'),
+    writeln('Hungry? You can eat something with `eat(X)`, if not better put it to fridge! '),
     writeln('---'),
     writeln('Good luck!'),
 	nl.
